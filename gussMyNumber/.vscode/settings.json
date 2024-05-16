@@ -1,0 +1,7 @@
+{
+  "editor.colorDecoratorsActivatedOn": "clickAndHover",
+  "colorize.colorized_colors": ["BROWSERS_COLORS", "HEXA", "RGB", "HSL"],
+  "editor.language.colorizedBracketPairs": [
+    
+  ]
+}
