@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import {
   Alert,
   Image,
@@ -14,12 +14,18 @@ import * as Location from "expo-location";
 import { Colors_v1 } from "../Colors/v1";
 import IconButton from "../components/IconButton";
 import ImagePreview from "../components/ImagePreview";
-import { getGoogleMapUri } from "../utils/common";
+import { getGoogleMapUri } from "../utils/location";
+import { Place } from "../model/place";
 
 const addPlaces = () => {
+  const [title, setTitle] = useState("");
   const [image, setImage] = useState(null);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const onChangeText = (text) => {
+    setTitle(text);
+  };
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -30,7 +36,7 @@ const addPlaces = () => {
       quality: 0.5,
     });
 
-    console.log(result);
+    // console.log(result);
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
@@ -45,8 +51,11 @@ const addPlaces = () => {
     }
 
     let location = await Location.getCurrentPositionAsync({});
-    console.log(location);
-    setLocation(location);
+
+    setLocation({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
   };
 
   let text = "Waiting..";
@@ -56,16 +65,20 @@ const addPlaces = () => {
     text = JSON.stringify(location);
   }
 
+  const onSubmit = () => {
+    const place = new Place(title, image, location);
+    console.log(place);
+    // router.replace("index");
+  };
+
   return (
     <View style={styles.screen}>
       <Text style={styles.placeLabel}>Place:</Text>
       <TextInput
         style={styles.input}
-        // onChangeText={onChangeText}
-        // value={text}
+        onChangeText={onChangeText}
+        value={title}
       />
-
-      {/* <ImagePreview uri={image} /> */}
 
       <View style={styles.previewContainer}>
         <Image src={image} style={styles.image} />
@@ -86,8 +99,8 @@ const addPlaces = () => {
           <Image
             source={{
               uri: getGoogleMapUri({
-                lat: location.coords.latitude,
-                lng: location.coords.longitude,
+                lat: location.latitude,
+                lng: location.longitude,
               }),
             }}
             style={styles.image}
@@ -113,11 +126,30 @@ const addPlaces = () => {
           text={"View Map"}
           name="map-marked-alt"
           color="green"
-          onPress={() => Alert.alert("view map clicked!")}
+          onPress={() => router.navigate("mapView")}
           style={styles.btn}
           containerStyle={{ borderRadius: 10 }}
         />
       </View>
+
+      <IconButton
+        size={20}
+        text={"Submit"}
+        name="upload"
+        color={Colors_v1.primaryDarkBlue}
+        onPress={onSubmit}
+        style={styles.btn}
+        containerStyle={{ borderRadius: 10 }}
+      />
+
+      <Link
+        href={{
+          pathname: "index",
+          params: { id: "bacon" },
+        }}
+      >
+        Home
+      </Link>
     </View>
   );
 };
@@ -143,7 +175,7 @@ const styles = StyleSheet.create({
   },
   previewContainer: {
     marginVertical: 10,
-    height: 300,
+    height: 220,
     backgroundColor: Colors_v1.primaryRed,
     alignItems: "center",
     justifyContent: "center",
@@ -154,6 +186,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   btn: {
+    marginVertical: 10,
     paddingHorizontal: 15,
     paddingVertical: 10,
     elevation: 5,
