@@ -1,54 +1,28 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import React, { useCallback, useContext, useState } from "react";
 import { Button, FAB } from "react-native-paper";
 import { Colors_v1 } from "../Colors/v1";
+import PlaceCard from "../components/PlaceCard";
+import PlacesList from "../components/PlacesList";
+import { FavPlacesContext } from "../Context/FavPlacesContext";
 
 const Home = () => {
   const params = useLocalSearchParams();
+  const { places } = useContext(FavPlacesContext);
 
-  console.log(params);
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     console.log(params);
+  //     // if(params?.title && params?.imageUri && params?.place){
+  //     //   setFavPlaces((prev)=>([...prev,]))
+  //     // }
+  //   }, [params])
+  // );
+
   return (
     <View style={styles.screen}>
-      <Text>Home</Text>
-      <Pressable
-        onPress={() => {
-          router.navigate("/addPlaces");
-        }}
-      >
-        <Text>Go to Add places Screen</Text>
-      </Pressable>
-
-      {router.canGoBack() && (
-        <Pressable onPress={() => router.back()}>
-          <Text>Go Back</Text>
-        </Pressable>
-      )}
-
-      <Button
-        icon="camera"
-        mode="contained"
-        onPress={() => router.navigate("/addPlaces")}
-        buttonColor="white"
-        textColor="red"
-        rippleColor={"purple"}
-        loading={true}
-      >
-        Press me
-      </Button>
-
-      <Button
-        icon="camera"
-        mode="contained"
-        onPress={() => router.navigate("/addPlaces")}
-        // buttonColor="white"
-        // textColor="red"
-        rippleColor={"purple"}
-        loading={false}
-        style={{ width: 200, alignSelf: "center", marginVertical: 20 }}
-      >
-        Press me
-      </Button>
+      <PlacesList data={places} />
 
       <FAB
         icon="plus"

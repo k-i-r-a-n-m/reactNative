@@ -1,8 +1,8 @@
 export class Place {
-  constructor(title, image, place) {
+  constructor(title, image, coords) {
     this.title = title;
-    this.image = image;
-    this.place = place;
+    this.imageUri = image;
+    this.coords = coords;
   }
 }
 

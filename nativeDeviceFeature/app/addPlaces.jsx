@@ -1,5 +1,10 @@
-import React, { useState } from "react";
-import { Link, router } from "expo-router";
+import React, { useState, useCallback, useContext } from "react";
+import {
+  Link,
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+} from "expo-router";
 import {
   Alert,
   Image,
@@ -13,15 +18,29 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { Colors_v1 } from "../Colors/v1";
 import IconButton from "../components/IconButton";
-import ImagePreview from "../components/ImagePreview";
+
 import { getGoogleMapUri } from "../utils/location";
 import { Place } from "../model/place";
+import { FavPlacesContext } from "../Context/FavPlacesContext";
 
 const addPlaces = () => {
   const [title, setTitle] = useState("");
   const [image, setImage] = useState(null);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const params = useLocalSearchParams();
+  const { addPlace } = useContext(FavPlacesContext);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (params?.latitude && params?.longitude) {
+        setLocation({
+          latitude: params.latitude,
+          longitude: params.longitude,
+        });
+      }
+    }, [params?.latitude, params?.longitude])
+  );
 
   const onChangeText = (text) => {
     setTitle(text);
@@ -67,8 +86,8 @@ const addPlaces = () => {
 
   const onSubmit = () => {
     const place = new Place(title, image, location);
-    console.log(place);
-    // router.replace("index");
+    addPlace(place);
+    router.back();
   };
 
   return (
@@ -141,15 +160,6 @@ const addPlaces = () => {
         style={styles.btn}
         containerStyle={{ borderRadius: 10 }}
       />
-
-      <Link
-        href={{
-          pathname: "index",
-          params: { id: "bacon" },
-        }}
-      >
-        Home
-      </Link>
     </View>
   );
 };
