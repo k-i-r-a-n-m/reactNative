@@ -20,9 +20,9 @@ const index = () => {
 
       <Button
         onPress={() => {
-          router.navigate("addPlaces");
+          router.navigate("database");
         }}
-        title="Add Places"
+        title="database"
         color="#841584"
       />
     </View>

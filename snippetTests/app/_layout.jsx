@@ -10,6 +10,7 @@ const appLayout = () => {
         <Stack.Screen name="addPlaces" />
         <Stack.Screen name="between" />
         <Stack.Screen name="mapView" />
+        <Stack.Screen name="database" />
       </Stack>
     </>
   );
