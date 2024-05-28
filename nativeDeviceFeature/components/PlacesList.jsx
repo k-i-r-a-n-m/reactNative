@@ -6,7 +6,7 @@ const PlacesList = ({ data }) => {
   return (
     <FlatList
       data={data}
-      keyExtractor={(item, index) => item.title}
+      keyExtractor={(item, index) => item.id}
       renderItem={({ item }) => (
         <PlaceCard
           title={item.title}

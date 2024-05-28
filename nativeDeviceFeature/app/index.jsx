@@ -1,16 +1,25 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useRef, useState } from "react";
 import { Button, FAB } from "react-native-paper";
 import { Colors_v1 } from "../Colors/v1";
 import PlaceCard from "../components/PlaceCard";
 import PlacesList from "../components/PlacesList";
 import { FavPlacesContext } from "../Context/FavPlacesContext";
+import { useEffect } from "react";
+import { useSQLiteContext } from "expo-sqlite";
 
 const Home = () => {
-  const params = useLocalSearchParams();
-  const { places } = useContext(FavPlacesContext);
+  const db = useSQLiteContext();
+  const isFocused = useRef(false);
 
+  // Data passed using navigation params
+  // const params = useLocalSearchParams();
+  // const { places } = useContext(FavPlacesContext);
+
+  const [places, setPlaces] = useState([]);
+
+  // Getting data form the params and storing in the state(in memory)
   // useFocusEffect(
   //   useCallback(() => {
   //     console.log(params);
@@ -20,6 +29,54 @@ const Home = () => {
   //   }, [params])
   // );
 
+  // Getting the data from DB and storing in state(Persistence)
+  useFocusEffect(
+    useCallback(() => {
+      const getDBdata = async () => {
+        console.log("usecallback-called");
+        const allRows = await db.getAllAsync("SELECT * FROM dummytest");
+        setPlaces(
+          allRows.map((place) => ({
+            ...place,
+            coords: JSON.parse(place.coords),
+          }))
+        );
+      };
+      getDBdata();
+    }, [])
+  );
+
+  useEffect(() => {
+    (async () => {
+      console.log("db--initialized");
+      await db.execAsync(
+        `CREATE TABLE IF NOT EXISTS dummyTest
+           (
+            id INTEGER PRIMARY KEY NOT NULL,
+            title TEXT NOT NULL,
+            imageUri TEXT NOT NULL,
+            coords TEXT NOT NULL
+            );`
+      );
+
+      // Initailly All the data
+      const allRows = await db.getAllAsync("SELECT * FROM dummytest");
+      setPlaces(
+        allRows.map((place) => ({
+          ...place,
+          coords: JSON.parse(place.coords),
+        }))
+      );
+
+      // for (const row of allRows) {
+      //   console.log(row);
+      // }
+
+      // db.execAsync(`DROP TABLE IF EXISTS dummyTest;`);
+    })();
+  }, []);
+
+  console.log("home", places.length);
   return (
     <View style={styles.screen}>
       <PlacesList data={places} />

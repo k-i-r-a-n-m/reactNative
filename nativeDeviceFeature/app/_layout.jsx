@@ -3,11 +3,16 @@ import React from "react";
 import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { FavPlacesProvider } from "../Context/FavPlacesContext";
+import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
 
 const appLayout = () => {
   return (
     <>
-      <FavPlacesProvider>
+      <SQLiteProvider
+        databaseName="test.db"
+        onError={(e) => console.log("error", e)}
+      >
+        {/* <FavPlacesProvider> */}
         <PaperProvider>
           <Stack>
             <Stack.Screen
@@ -31,7 +36,8 @@ const appLayout = () => {
             />
           </Stack>
         </PaperProvider>
-      </FavPlacesProvider>
+        {/* </FavPlacesProvider> */}
+      </SQLiteProvider>
     </>
   );
 };

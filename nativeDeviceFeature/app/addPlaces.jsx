@@ -22,6 +22,8 @@ import IconButton from "../components/IconButton";
 import { getGoogleMapUri } from "../utils/location";
 import { Place } from "../model/place";
 import { FavPlacesContext } from "../Context/FavPlacesContext";
+import { useSQLiteContext } from "expo-sqlite";
+import { dbInsertFavPlaceStatement } from "../utils/database";
 
 const addPlaces = () => {
   const [title, setTitle] = useState("");
@@ -29,7 +31,8 @@ const addPlaces = () => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const params = useLocalSearchParams();
-  const { addPlace } = useContext(FavPlacesContext);
+  // const { addPlace } = useContext(FavPlacesContext);
+  const db = useSQLiteContext();
 
   useFocusEffect(
     useCallback(() => {
@@ -84,10 +87,28 @@ const addPlaces = () => {
     text = JSON.stringify(location);
   }
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     const place = new Place(title, image, location);
-    addPlace(place);
-    router.back();
+    // addPlace(place); //using context to store data in memory
+    if (!place.isValid()) {
+      Alert.alert("Enter all the fieldss");
+      return;
+    }
+    console.log("after return ");
+    const { lastInsertRowId, changes } = await dbInsertFavPlaceStatement(
+      db,
+      place
+    );
+    console.log(changes, lastInsertRowId);
+
+    // router.navigate("/");
+  };
+
+  const viewDataBaseValues = async () => {
+    const allRows = await db.getAllAsync("SELECT * FROM dummytest");
+    for (const row of allRows) {
+      console.log(row);
+    }
   };
 
   return (
@@ -157,6 +178,15 @@ const addPlaces = () => {
         name="upload"
         color={Colors_v1.primaryDarkBlue}
         onPress={onSubmit}
+        style={styles.btn}
+        containerStyle={{ borderRadius: 10 }}
+      />
+      <IconButton
+        size={20}
+        text={"view db value"}
+        name="upload"
+        color={Colors_v1.primaryDarkBlue}
+        onPress={viewDataBaseValues}
         style={styles.btn}
         containerStyle={{ borderRadius: 10 }}
       />
